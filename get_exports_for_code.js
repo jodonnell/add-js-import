@@ -33,7 +33,7 @@ const plugins = [
   'nullishCoalescingOperator'
 ]
 
-class GetExportsForFile {
+class GetExportsForCode {
     constructor(code) {
         this.code = code
     }
@@ -85,4 +85,4 @@ class GetExportsForFile {
     }
 }
 
-module.exports = GetExportsForFile
+module.exports = GetExportsForCode

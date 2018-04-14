@@ -1,4 +1,4 @@
-const GetExportsForFile = require('./get_exports_for_file')
+const GetExportsForCode = require('./get_exports_for_code')
 const fs = require('fs')
 const util = require('util')
 const _ = require('lodash')
@@ -19,7 +19,7 @@ async function readFileToString(fileName) {
 async function getExportsForFileName(fileName) {
     try {
         const code = await readFileToString(fileName)
-        const exportsForFile = new GetExportsForFile(code)
+        const exportsForFile = new GetExportsForCode(code)
         return await exportsForFile.getExports()
     } catch (err) {
         console.log(fileName, err)
