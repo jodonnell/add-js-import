@@ -1,0 +1,10 @@
+{
+  "name": "node-import-ide",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "babylon": "^6.18.0",
+    "lodash": "^4.17.5"
+  }
+}
