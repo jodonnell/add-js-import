@@ -1,5 +1,4 @@
 const babylon = require('babylon')
-const fs = require('fs')
 const _ = require('lodash')
 const util = require('util')
 
@@ -35,18 +34,18 @@ const plugins = [
 ]
 
 class GetExportsForFile {
-    constructor(fileName) {
-        this.fileName = fileName
+    constructor(code) {
+        this.code = code
     }
 
     async getExports() {
-        const fileContents = await this.readFile()
-        this.body = this.parse(fileContents.toString())
+        this.body = this.parse(this.code)
 
         this.exportedNames = []
+        this.exportedDefaults = []
         this.getDefaultExports()
         this.getNamedExports()
-        return _.uniq(this.exportedNames)
+        return this.exportedNames
     }
 
     parse(code) {
@@ -56,21 +55,16 @@ class GetExportsForFile {
         ).program.body
     }
 
-    async readFile() {
-        const readFile = util.promisify(fs.readFile)
-        return readFile(this.fileName)
-    }
-
     getDefaultExports() {
         const defaultExport = _.find(this.body, node => node.type === 'ExportDefaultDeclaration')
         if (!defaultExport)
             return
 
         if (defaultExport.declaration.type === 'Identifier') {
-            this.exportedNames.push(defaultExport.declaration.name)
+            this.exportedDefaults.push(defaultExport.declaration.name)
         }
         else if (defaultExport.declaration.type === 'CallExpression') {
-            this.exportedNames.push(defaultExport.declaration.arguments[0].name)
+            this.exportedDefaults.push(defaultExport.declaration.arguments[0].name)
         }
     }
 
