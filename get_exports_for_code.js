@@ -42,7 +42,7 @@ class GetExportsForCode {
         this.body = this.parse(this.code)
 
         this.exportedNames = []
-        this.exportedDefaults = []
+        this.exportedDefault = null
         this.getDefaultExports()
         this.getNamedExports()
         return this.exportedNames
@@ -61,10 +61,10 @@ class GetExportsForCode {
             return
 
         if (defaultExport.declaration.type === 'Identifier') {
-            this.exportedDefaults.push(defaultExport.declaration.name)
+            this.exportedDefault = defaultExport.declaration.name
         }
         else if (defaultExport.declaration.type === 'CallExpression') {
-            this.exportedDefaults.push(defaultExport.declaration.arguments[0].name)
+            this.exportedDefault = defaultExport.declaration.arguments[0].name
         }
     }
 

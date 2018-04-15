@@ -48,13 +48,12 @@ async function getAllExportsForDir(dirName, javascriptExport) {
         const file = fileAndExport[0].replace(/\.[^/.]+$/, "")
         const getExportsForCode = fileAndExport[1]
 
-        _.each(getExportsForCode.exportedDefaults, exportedDefault => {
-            if (!(exportedDefault in result)) {
-                result[exportedDefault] = []
-            }
+        const exportedDefault = getExportsForCode.exportedDefault
+        if (!(exportedDefault in result)) {
+            result[exportedDefault] = []
+        }
 
-            result[exportedDefault].push(`import ${exportedDefault} from '${file}'`)
-        })
+        result[exportedDefault].push(`import ${exportedDefault} from '${file}'`)
 
         _.each(getExportsForCode.exportedNames, exportedName => {
             if (!(exportedName in result)) {
@@ -65,7 +64,8 @@ async function getAllExportsForDir(dirName, javascriptExport) {
         })
     })
 
-    console.log(JSON.stringify(result[javascriptExport]))
+    if (javascriptExport in result)
+        console.log(result[javascriptExport].join("\n"))
 }
 
 let dir = process.argv[2]
