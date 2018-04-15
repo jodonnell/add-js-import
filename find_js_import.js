@@ -34,7 +34,7 @@ async function getJsFiles(dirName) {
     return _.filter(stdout.split('\n'), file => file.length > 0)
 }
 
-async function getAllExportsForDir(dirName, javascriptExport) {
+async function getAllExportsForDir(dirName, javascriptExport, useSemiColon) {
     const files = await getJsFiles(dirName)
     const getFiles = _.map(files, file => {
         return getExportsForFileName(`${dirName}${file}`)
@@ -53,14 +53,22 @@ async function getAllExportsForDir(dirName, javascriptExport) {
             result[exportedDefault] = []
         }
 
-        result[exportedDefault].push(`import ${exportedDefault} from '${file}'`)
+        let exportDefaultString = `import ${exportedDefault} from '${file}'`
+        if (useSemiColon)
+            exportDefaultString += ';'
+
+        result[exportedDefault].push(exportDefaultString)
 
         _.each(getExportsForCode.exportedNames, exportedName => {
             if (!(exportedName in result)) {
                 result[exportedName] = []
             }
 
-            result[exportedName].push(`import { ${exportedName} } from '${file}'`)
+            let exportNamedString = `import { ${exportedName} } from '${file}'`
+            if (useSemiColon)
+                exportNamedString += ';'
+
+            result[exportedName].push(exportNamedString)
         })
     })
 
@@ -72,5 +80,7 @@ let dir = process.argv[2]
 if (dir.slice(-1) !== '/')
     dir += '/'
 const javascriptExport = process.argv[3]
+const semis = process.argv[4]
+const useSemiColon = process.argv.indexOf("--semi") !== -1
 
-getAllExportsForDir(dir, javascriptExport)
+getAllExportsForDir(dir, javascriptExport, useSemiColon)
