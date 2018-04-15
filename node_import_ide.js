@@ -19,8 +19,9 @@ async function readFileToString(fileName) {
 async function getExportsForFileName(fileName) {
     try {
         const code = await readFileToString(fileName)
-        const exportsForFile = new GetExportsForCode(code)
-        return await exportsForFile.getExports()
+        const exportsForCode = new GetExportsForCode(code)
+        exportsForCode.getExports()
+        return exportsForCode
     } catch (err) {
         console.log(fileName, err)
     }
@@ -33,8 +34,6 @@ async function getJsFiles(dirName) {
     return _.filter(stdout.split('\n'), file => file.length > 0)
 }
 
-// need to differentiate between named and default exports
-
 async function getAllExportsForDir(dirName, javascriptExport) {
     const files = await getJsFiles(dirName)
     const getFiles = _.map(files, file => {
@@ -42,19 +41,36 @@ async function getAllExportsForDir(dirName, javascriptExport) {
     })
 
     const values = await Promise.all(getFiles)
-
-    const results = {}
     const filesAndExports = _.zip(files, values)
-    _.each(filesAndExports, filesAndExport => {
-        _.each(filesAndExport[1], exportName => {
-            if (!(exportName in results)) {
-                results[exportName] = []
+    const result = {}
+
+    _.each(filesAndExports, fileAndExport => {
+        const file = fileAndExport[0].replace(/\.[^/.]+$/, "")
+        const getExportsForCode = fileAndExport[1]
+
+        _.each(getExportsForCode.exportedDefaults, exportedDefault => {
+            if (!(exportedDefault in result)) {
+                result[exportedDefault] = []
             }
 
-            results[exportName].push(filesAndExport[0])
+            result[exportedDefault].push(`import ${exportedDefault} from '${file}'`)
+        })
+
+        _.each(getExportsForCode.exportedNames, exportedName => {
+            if (!(exportedName in result)) {
+                result[exportedName] = []
+            }
+
+            result[exportedName].push(`import { ${exportedName} } from '${file}'`)
         })
     })
-    console.log(JSON.stringify(results[javascriptExport]))
+
+    console.log(JSON.stringify(result[javascriptExport]))
 }
 
-getAllExportsForDir(process.argv[2], process.argv[3])
+let dir = process.argv[2]
+if (dir.slice(-1) !== '/')
+    dir += '/'
+const javascriptExport = process.argv[3]
+
+getAllExportsForDir(dir, javascriptExport)
