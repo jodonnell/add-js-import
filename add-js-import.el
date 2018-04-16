@@ -58,15 +58,18 @@
 (defvar add-js-import-node-import-path
   (concat (file-name-directory buffer-file-name) "find_js_import.js"))
 
-(defun add-js-import--is-empty? (thing)
-  (eq (length thing) 0))
+(defun add-js-import--is-empty? (string)
+  "Check to see if a STRING is empty."
+  (eq (length string) 0))
 
 (defun add-js-import--semi-flag()
+  "Add the semi flag if the option is on."
   (if add-js-import-use-semicolons
       "--semi"
     ""))
 
 (defun add-js-import--command-list(project-path symbol)
+  "Return the shell command list of the command to run for PROJECT-PATH and SYMBOL."
   `(,add-js-import-node-executable
     ,add-js-import-node-import-path
     ,project-path
@@ -74,10 +77,12 @@
     ,(add-js-import--semi-flag)))
 
 (defun add-js-import--run-command(project-path symbol)
+  "Run the command to get the package imports for PROJECT-PATH and SYMBOL."
   (shell-command-to-string
    (string-join (add-js-import--command-list project-path symbol) " ")))
 
 (defun add-js-import--install-packages-and-rerun(project-path symbol)
+  "Install the node dependencies and rerun for PROJECT-PATH and SYMBOL."
   (shell-command-to-string (concat
                             add-js-import-npm-executable " --prefix "
                             (file-name-directory add-js-import-node-import-path)
@@ -86,22 +91,26 @@
   (add-js-import--run-command project-path symbol))
 
 (defun add-js-import--run-command-and-error-handle(project-path symbol)
+  "Run the command for PROJECT-PATH and SYMBOL and handle any errors."
   (let ((output (add-js-import--run-command project-path symbol)))
     (if (string-match-p (regexp-quote "Error: Cannot find module '") output)
         (add-js-import--install-packages-and-rerun project-path symbol)
       output)))
 
 (defun add-js-import--shell-output-to-list(output)
+  "Turn the shell OUTPUT to a list."
   (seq-remove
    'add-js-import--is-empty?
    (split-string output "\n")))
 
 (defun add-js-import--insert-import(import)
+  "Insert the IMPORT statement at the top of the file."
   (save-excursion
     (beginning-of-buffer)
     (insert (concat import "\n"))))
 
 (defun add-js-import(project-path symbol)
+  "Find and add the js import for PROJECT-PATH and SYMBOL."
   (let ((imports (shell-output-to-list
                   (add-js-import--run-command-and-error-handle
                    project-path
@@ -111,6 +120,7 @@
 
 ;;;###autoload
 (defun add-js-import-at-point()
+  "Find and add the js import for current projectile project and thing at point."
   (interactive)
   (add-js-import
    (projectile-project-root)
