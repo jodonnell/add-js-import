@@ -1,8 +1,8 @@
 {
   "name": "add-js-import",
   "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "main": "find_js_import.js",
+  "license": "GPLv3",
   "dependencies": {
     "babylon": "^6.18.0",
     "lodash": "^4.17.5"
