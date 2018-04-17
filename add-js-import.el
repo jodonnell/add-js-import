@@ -111,7 +111,7 @@
 
 (defun add-js-import(project-path symbol)
   "Find and add the js import for PROJECT-PATH and SYMBOL."
-  (let ((imports (shell-output-to-list
+  (let ((imports (add-js-import--shell-output-to-list
                   (add-js-import--run-command-and-error-handle
                    project-path
                    symbol))))
